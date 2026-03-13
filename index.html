@@ -212,7 +212,7 @@
 </main>
 
 <!-- ═══════════ 문항 관리 패널 ═══════════ -->
-<div id="admin-panel" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden no-print flex items-center justify-center p-6">
+<div id="admin-panel" class="fixed inset-0 bg-black bg-opacity-50 z-[100] no-print items-center justify-center p-6" style="display:none;">
     <div class="bg-white w-full max-w-5xl h-[85vh] rounded-3xl p-8 overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-black text-navy">📝 44개 진단 문항 관리</h3>
@@ -514,8 +514,12 @@ loadInfraItems();
 // ═══════════ 문항 관리 ═══════════
 function toggleAdmin() {
     const panel = document.getElementById('admin-panel');
-    panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) renderAdminList();
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'flex';
+        renderAdminList();
+    } else {
+        panel.style.display = 'none';
+    }
 }
 
 function renderAdminList() {
@@ -925,7 +929,7 @@ function submitToConsultant() {
     const btn = document.getElementById('btn-submit');
     const statusEl = document.getElementById('submit-status');
 
-    if (GOOGLE_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw4EuEe-I9BJOjJwut0BiCgIv3eWVeGnx66ahBcEP6gOVXAOXSBDhJFjg4CMiMC1EYFTw/exec') {
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_GOOGLE')) {
         alert('⚠️ Google Apps Script URL이 설정되지 않았습니다.\n관리자에게 문의하세요.');
         return;
     }
