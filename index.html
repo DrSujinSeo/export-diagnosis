@@ -1,1 +1,1015 @@
-file:///C:/Users/janet/OneDrive/%EB%B0%94%ED%83%95%20%ED%99%94%EB%A9%B4/%EC%88%98%EC%B6%9C%EC%97%AD%EB%9F%89%EC%A7%84%EB%8B%A8_%EC%B5%9C%EC%A2%85_index.html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG EXPORT - 수출 역량진단 시스템 v4.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f1f5f9; }
+        .bg-navy { background-color: #00234a; }
+        .text-navy { color: #00234a; }
+        .border-navy { border-color: #00234a; }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        .option-btn { transition: all 0.2s; }
+        .option-btn.selected { border-color: #00234a; background: white; box-shadow: 0 4px 15px rgba(0,35,74,0.15); }
+        .progress-bar { transition: width 0.5s ease; }
+        .grade-S { color: #00234a; } .grade-A { color: #1d4ed8; } .grade-B { color: #16a34a; } .grade-C { color: #d97706; } .grade-D { color: #dc2626; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .print-page { page-break-after: always; padding: 15mm 20mm; min-height: 270mm; background: white; }
+            .print-page:last-child { page-break-after: avoid; }
+        }
+        .print-only { display: none; }
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="bg-white border-b-2 border-navy py-4 px-8 flex justify-between items-center sticky top-0 z-50 no-print">
+    <div class="flex items-center space-x-4">
+        <div class="flex flex-col leading-none">
+            <span class="text-2xl font-black text-navy tracking-tighter">ESG EXPORT</span>
+            <span class="text-[9px] text-navy font-bold uppercase tracking-wider">ESG Export Consulting, Inc.</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="toggleAdmin()" class="text-xs bg-gray-100 px-3 py-1.5 rounded-lg border hover:bg-gray-200 font-medium">⚙ 문항 관리</button>
+        <button onclick="resetAll()" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-100 font-medium">↺ 초기화</button>
+    </div>
+</header>
+
+<!-- ═══════════ STEP 1: 기업 기본정보 ═══════════ -->
+<main class="max-w-5xl mx-auto py-10 px-6 no-print">
+
+    <div id="step-1" class="step-content active space-y-8 fade-in">
+        <div class="text-center space-y-2">
+            <h2 class="text-4xl font-black text-navy">수출기업 역량진단 보고서</h2>
+            <p class="text-gray-400 font-medium italic text-sm">Your Global Business Partner, ESG EXPORT CONSULTING</p>
+        </div>
+
+        <!-- 기본정보 -->
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-navy">
+            <h3 class="text-lg font-black text-navy mb-6 flex items-center gap-2">📋 기업 기본정보</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">대상 기업명 *</label><input type="text" id="company_name" class="w-full p-3.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-200 outline-none" placeholder="예: 주식회사 에이블랩스"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">업종 / 산업분야</label><input type="text" id="company_industry" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="예: 화장품 제조업"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">주요 제품/서비스</label><input type="text" id="company_product" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="예: 기능성 스킨케어, 마스크팩"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">연간 매출액 (억원)</label>
+                    <select id="company_revenue" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none">
+                        <option value="">선택해주세요</option>
+                        <option value="5억 미만">5억 미만</option>
+                        <option value="5억~10억">5억 ~ 10억</option>
+                        <option value="10억~50억">10억 ~ 50억</option>
+                        <option value="50억~100억">50억 ~ 100억</option>
+                        <option value="100억~500억">100억 ~ 500억</option>
+                        <option value="500억 이상">500억 이상</option>
+                    </select>
+                </div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">수출 경험</label>
+                    <select id="company_export_exp" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none">
+                        <option value="">선택해주세요</option>
+                        <option value="수출 경험 없음">수출 경험 없음 (초보기업)</option>
+                        <option value="1~2년 미만">1~2년 미만 (초기 수출기업)</option>
+                        <option value="2~5년">2~5년 (성장기 수출기업)</option>
+                        <option value="5년 이상">5년 이상 (성숙기 수출기업)</option>
+                    </select>
+                </div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">해외 지사/법인 여부</label>
+                    <select id="company_overseas" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none">
+                        <option value="">선택해주세요</option>
+                        <option value="없음">없음</option>
+                        <option value="해외 대리점/에이전트">해외 대리점/에이전트 보유</option>
+                        <option value="해외 지사 보유">해외 지사 보유</option>
+                        <option value="해외 법인 보유">해외 법인 보유</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 인적자원 현황 -->
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-blue-600">
+            <h3 class="text-lg font-black text-navy mb-6 flex items-center gap-2">👥 인적자원 현황 (부서별 인원수)</h3>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="space-y-1 text-center"><label class="text-xs font-bold text-gray-500">연구개발(R&D)</label><input type="number" id="hr_rd" class="w-full p-3 bg-gray-50 border rounded-xl text-center outline-none" placeholder="0" min="0"></div>
+                <div class="space-y-1 text-center"><label class="text-xs font-bold text-gray-500">해외영업</label><input type="number" id="hr_sales" class="w-full p-3 bg-gray-50 border rounded-xl text-center outline-none" placeholder="0" min="0"></div>
+                <div class="space-y-1 text-center"><label class="text-xs font-bold text-gray-500">해외마케팅</label><input type="number" id="hr_marketing" class="w-full p-3 bg-gray-50 border rounded-xl text-center outline-none" placeholder="0" min="0"></div>
+                <div class="space-y-1 text-center"><label class="text-xs font-bold text-gray-500">생산·품질</label><input type="number" id="hr_production" class="w-full p-3 bg-gray-50 border rounded-xl text-center outline-none" placeholder="0" min="0"></div>
+                <div class="space-y-1 text-center"><label class="text-xs font-bold text-gray-500">구매·SCM</label><input type="number" id="hr_purchase" class="w-full p-3 bg-gray-50 border rounded-xl text-center outline-none" placeholder="0" min="0"></div>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">전체 임직원 수</label><input type="number" id="hr_total" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="전체 인원수" min="0"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">수출 전담인력 수</label><input type="number" id="hr_export" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="수출 업무 전담 인원" min="0"></div>
+            </div>
+        </div>
+
+        <!-- 수출 인프라 체크리스트 -->
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-red-600">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-black text-navy flex items-center gap-2">📋 수출 인프라 현황 체크리스트</h3>
+                <button onclick="addInfraItem()" class="text-xs bg-navy text-white px-4 py-2 rounded-lg font-bold hover:bg-black transition">+ 항목 추가</button>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">※ 기업별 상황에 맞게 항목을 자유롭게 추가/삭제/수정할 수 있습니다. 항목명을 클릭하면 수정 가능합니다.</p>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-sm" id="infra-table">
+                    <thead>
+                        <tr class="bg-navy text-white">
+                            <th class="p-3 text-left rounded-tl-lg w-8">#</th>
+                            <th class="p-3 text-left">구분</th>
+                            <th class="p-3 text-center w-20">없음</th>
+                            <th class="p-3 text-center w-20">있음</th>
+                            <th class="p-3 text-center w-20">진행중</th>
+                            <th class="p-3 text-center w-48">비고</th>
+                            <th class="p-3 text-center rounded-tr-lg w-12">삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="infra-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 진단 담당자 정보 -->
+        <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-emerald-600">
+            <h3 class="text-lg font-black text-navy mb-6 flex items-center gap-2">🖊 진단 담당자 정보</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">진단 담당자</label><input type="text" id="manager_name" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="성함"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">담당자 직책</label><input type="text" id="manager_pos" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="대표이사 / 수출팀장"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">진단 일자</label><input type="date" id="diag_date" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none"></div>
+            </div>
+        </div>
+
+        <button onclick="startDiag()" class="w-full py-5 bg-navy text-white rounded-2xl font-black text-xl hover:bg-black transition-all shadow-xl">
+            🔍 수출 역량 정밀진단 시작 (7개 영역 · 44문항)
+        </button>
+    </div>
+
+    <!-- ═══════════ STEP 2: 진단 문항 ═══════════ -->
+    <div id="step-2" class="step-content space-y-6 fade-in">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-navy font-black text-lg" id="q-category">SECTION</span>
+                <span class="bg-navy text-white px-4 py-1 rounded-full text-sm font-bold" id="q-progress">1 / 44</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-fill" class="bg-navy h-2 rounded-full progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="bg-white p-10 rounded-[32px] shadow-xl border">
+            <p id="q-text" class="text-xl font-bold mb-8 text-gray-800 leading-relaxed"></p>
+            <div class="grid grid-cols-1 gap-3" id="options-container"></div>
+        </div>
+        <div class="flex gap-3">
+            <button id="prev-q-btn" onclick="prevQuestion()" class="w-1/4 py-4 bg-gray-200 text-gray-600 rounded-2xl font-bold text-lg hover:bg-gray-300">◀ 이전</button>
+            <button id="next-q-btn" disabled class="w-3/4 py-4 bg-gray-300 text-white rounded-2xl font-black text-lg">다음 문항 ▶</button>
+        </div>
+    </div>
+
+    <!-- ═══════════ STEP 3: 컨설턴트 의견 ═══════════ -->
+    <div id="step-3" class="step-content space-y-6 fade-in">
+        <h3 class="text-3xl font-black text-navy text-center">수출전문가 종합 지도 의견</h3>
+        <div class="bg-white p-8 rounded-3xl shadow-xl border">
+            <p class="text-sm text-gray-400 mb-4 font-medium">아래 자동 생성된 의견을 수정하거나 직접 작성하실 수 있습니다.</p>
+            <textarea id="consultant_opinion" rows="18" class="w-full p-6 bg-gray-50 border rounded-2xl outline-none text-base leading-relaxed text-gray-700 font-medium focus:ring-2 focus:ring-blue-200"></textarea>
+        </div>
+        <button onclick="finishDiag()" class="w-full py-5 bg-navy text-white rounded-2xl font-black text-xl shadow-2xl hover:bg-black transition">최종 보고서 확인</button>
+    </div>
+
+    <!-- ═══════════ STEP 4: 결과 ═══════════ -->
+    <div id="step-4" class="step-content text-center py-8 space-y-8 fade-in">
+        <div class="bg-white p-12 rounded-[40px] shadow-2xl border-2 border-navy">
+            <h2 class="text-2xl font-black text-navy mb-2 uppercase tracking-wide">Export Readiness Diagnosis Complete</h2>
+            <p class="text-gray-400 text-sm mb-8" id="result-company-name"></p>
+
+            <div class="py-8 border-y-2 border-gray-100 my-6">
+                <p class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">종합 수출 역량 점수</p>
+                <div class="text-8xl font-black text-navy leading-none" id="final-score-display">0</div>
+                <div class="mt-3 text-3xl font-black" id="final-grade-display">-</div>
+            </div>
+
+            <!-- 영역별 레이더차트 -->
+            <div class="max-w-md mx-auto my-8">
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <!-- 영역별 점수 바 -->
+            <div id="section-bars" class="text-left space-y-3 my-8"></div>
+
+            <div class="grid grid-cols-3 gap-3 mt-8">
+                <button onclick="window.print()" class="py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-lg">📄 PDF 출력</button>
+                <button onclick="downloadJSON()" class="py-4 bg-emerald-600 text-white rounded-2xl font-bold text-lg hover:bg-emerald-700 shadow-lg">💾 데이터 저장</button>
+                <button onclick="submitToConsultant()" id="btn-submit" class="py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl font-bold text-lg hover:from-orange-600 hover:to-red-600 shadow-lg animate-pulse">📤 컨설턴트에게 제출</button>
+            </div>
+            <p id="submit-status" class="text-sm mt-3 font-bold hidden"></p>
+        </div>
+    </div>
+</main>
+
+<!-- ═══════════ 문항 관리 패널 ═══════════ -->
+<div id="admin-panel" class="fixed inset-0 bg-black bg-opacity-50 z-[100] no-print items-center justify-center p-6" style="display:none;">
+    <div class="bg-white w-full max-w-5xl h-[85vh] rounded-3xl p-8 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-black text-navy">📝 44개 진단 문항 관리</h3>
+            <div class="flex gap-2">
+                <button onclick="exportQuestions()" class="text-sm bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-bold hover:bg-blue-200">내보내기</button>
+                <button onclick="toggleAdmin()" class="text-sm bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200">✕ 닫기</button>
+            </div>
+        </div>
+        <div id="admin-list" class="space-y-3"></div>
+        <button onclick="saveAdminQuestions()" class="w-full mt-6 py-4 bg-navy text-white font-bold rounded-xl hover:bg-black transition">💾 문항 설정 저장 (localStorage)</button>
+    </div>
+</div>
+
+<!-- ═══════════ 인쇄용 보고서 ═══════════ -->
+<div id="report-template" class="print-only">
+    <!-- PAGE 1: 표지 -->
+    <div class="print-page flex flex-col justify-between" style="border: 16px solid #00234a;">
+        <div class="space-y-3 pt-4">
+            <p class="text-2xl font-black text-navy tracking-tighter">ESG EXPORT</p>
+            <p class="text-[10px] text-gray-400 font-bold uppercase">ESG Export Consulting, Inc.</p>
+            <div class="h-1 bg-navy w-24"></div>
+        </div>
+        <div class="space-y-4">
+            <h1 class="text-5xl font-black text-navy leading-tight">2026<br>수출기업<br>역량진단 보고서</h1>
+            <p class="text-xl font-bold text-gray-300">Export Readiness Diagnosis Report</p>
+        </div>
+        <div class="bg-navy p-8 text-white space-y-3 rounded-tl-[80px]">
+            <p class="text-lg">진단기업: <span class="font-bold print-company"></span></p>
+            <p class="text-sm">업종: <span class="print-industry"></span> | 주요제품: <span class="print-product"></span></p>
+            <p class="text-sm">매출규모: <span class="print-revenue"></span> | 수출경험: <span class="print-export-exp"></span></p>
+            <p class="text-lg mt-3">진단위원: <span class="font-bold print-manager"></span> <span class="print-pos"></span></p>
+            <p class="text-sm">진단일자: <span class="font-bold print-date"></span></p>
+            <div class="border-t border-white border-opacity-30 pt-3 mt-3">
+                <p class="text-xs opacity-60">발행기관: 이에스지수출경영연구원(주) | www.esgexport.kr</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: 기업개요 + 인적자원 -->
+    <div class="print-page">
+        <h2 class="text-2xl font-black border-b-4 border-navy pb-3 mb-8">1. 진단 기업 개요</h2>
+        <table class="w-full border-collapse mb-8" style="font-size:14px;">
+            <tr class="bg-navy text-white"><td class="p-3 font-bold w-1/4">항목</td><td class="p-3 font-bold">내용</td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">기업명</td><td class="p-3 print-company"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">업종</td><td class="p-3 print-industry"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">주요 제품</td><td class="p-3 print-product"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">매출규모</td><td class="p-3 print-revenue"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">수출경험</td><td class="p-3 print-export-exp"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">해외지사 여부</td><td class="p-3 print-overseas"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">전체 임직원</td><td class="p-3 print-hr-total"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">수출전담인력</td><td class="p-3 print-hr-export"></td></tr>
+        </table>
+        <h3 class="text-lg font-black text-navy mb-4">부서별 인적자원 현황</h3>
+        <table class="w-full border-collapse" style="font-size:14px;">
+            <tr class="bg-navy text-white text-center">
+                <td class="p-3 font-bold">연구개발(R&D)</td><td class="p-3 font-bold">해외영업</td><td class="p-3 font-bold">해외마케팅</td><td class="p-3 font-bold">생산·품질</td><td class="p-3 font-bold">구매·SCM</td>
+            </tr>
+            <tr class="border-b text-center text-lg font-bold">
+                <td class="p-3 print-hr-rd">-</td><td class="p-3 print-hr-sales">-</td><td class="p-3 print-hr-marketing">-</td><td class="p-3 print-hr-production">-</td><td class="p-3 print-hr-purchase">-</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- PAGE 2.5: 수출 인프라 체크리스트 -->
+    <div class="print-page">
+        <h2 class="text-2xl font-black border-b-4 border-navy pb-3 mb-8">2. 수출 인프라 현황 체크리스트</h2>
+        <div id="print-infra-checklist"></div>
+    </div>
+
+    <!-- PAGE 3: 종합 결과 -->
+    <div class="print-page">
+        <h2 class="text-2xl font-black border-b-4 border-navy pb-3 mb-8">3. 종합 진단 결과</h2>
+        <div class="flex justify-center items-center h-48 bg-gray-50 rounded-2xl mb-8 border">
+            <div class="text-center">
+                <p class="text-sm font-bold text-gray-400 uppercase tracking-wider">종합 수출 역량 점수</p>
+                <p class="text-8xl font-black text-navy" id="report-score">0</p>
+                <p class="text-2xl font-black mt-2" id="report-grade">-</p>
+            </div>
+        </div>
+        <h3 class="text-lg font-black text-navy mb-4">영역별 진단 결과 요약</h3>
+        <div id="print-section-summary" class="space-y-2"></div>
+        <div class="mt-8 p-6 bg-navy text-white rounded-2xl">
+            <h4 class="font-black mb-2">등급 기준</h4>
+            <p class="text-sm opacity-90">S등급(90~100): 글로벌 수출 선도기업 | A등급(80~89): 수출 우수기업 | B등급(65~79): 수출 성장기업 | C등급(50~64): 수출 준비기업 | D등급(50 미만): 수출 역량 강화 필요</p>
+        </div>
+    </div>
+
+    <!-- PAGE 4~: 영역별 상세 -->
+    <div class="print-page">
+        <h2 class="text-2xl font-black border-b-4 border-navy pb-3 mb-8">4. 영역별 정밀 분석</h2>
+        <div id="print-details" class="space-y-4" style="font-size:13px;"></div>
+    </div>
+
+    <!-- PAGE: 컨설턴트 의견 -->
+    <div class="print-page flex flex-col justify-between">
+        <div>
+            <h2 class="text-2xl font-black border-b-4 border-navy pb-3 mb-8">5. 수출전문가 종합 지도 의견</h2>
+            <div id="print-opinion" class="text-base leading-relaxed text-gray-700 whitespace-pre-wrap p-8 bg-gray-50 rounded-2xl border"></div>
+        </div>
+        <div class="flex justify-between items-end border-t-2 pt-8 mt-8">
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Export Consultant Certification</p>
+                <p class="text-xl font-black text-navy mt-1">국제통상학 박사 / 경영지도사</p>
+                <p class="text-lg font-bold text-navy print-manager"></p>
+            </div>
+            <div class="text-right">
+                <p class="text-xl font-black text-navy">이에스지수출경영연구원(주)</p>
+                <p class="text-sm text-gray-400">www.esgexport.kr</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════ 7대 영역 44문항 데이터 ═══════════
+const CATEGORIES = [
+    { name: "경영진 리더십", color: "#00234a", weight: 14 },
+    { name: "내부직원 역량", color: "#7c3aed", weight: 14 },
+    { name: "제품 경쟁력", color: "#1d4ed8", weight: 16 },
+    { name: "기술 경쟁력", color: "#059669", weight: 14 },
+    { name: "수출 인프라", color: "#dc2626", weight: 14 },
+    { name: "마케팅 역량", color: "#d97706", weight: 14 },
+    { name: "해외시장개척 역량", color: "#0891b2", weight: 14 }
+];
+
+const DEFAULT_QUESTIONS = [
+    // ── ① 경영진 리더십 (6문항) ──
+    { cat: 0, q: "CEO(최고경영자)의 해외시장 진출에 대한 의지와 주도적 참여 수준은?", opt: ["의지 미흡", "비정기적 관심 표명", "적극적 의지 표명", "강력한 리더십으로 직접 주도"] },
+    { cat: 0, q: "수출 전담 예산(마케팅·출장·인건비 등) 편성 및 집행의 독립성 수준은?", opt: ["수출 예산 미편성", "내수 예산에서 일부 지원", "수출 정기 예산 편성", "공격적 수출 전용 예산 운용"] },
+    { cat: 0, q: "중장기(3~5년) 수출 전략 및 목표시장 로드맵 수립 수준은?", opt: ["전략 미수립", "단기 계획만 존재", "중기 로드맵 수립", "체계적 장기 전략 및 KPI 관리"] },
+    { cat: 0, q: "수출 관련 의사결정 체계(수출위원회·보고체계 등)의 체계성은?", opt: ["체계 없음", "비공식적 논의", "정기 회의체 운영", "전사 수출전략위원회 운영"] },
+    { cat: 0, q: "글로벌 경영환경 변화(환율·통상정책·ESG 등)에 대한 모니터링 수준은?", opt: ["모니터링 없음", "비정기 뉴스 확인", "정기적 동향 파악", "전문 리서치 및 시나리오 대응"] },
+    { cat: 0, q: "정부 수출지원 사업(수출바우처, KOTRA, 중진공 등) 활용 경험 및 적극성은?", opt: ["활용 경험 없음", "1~2회 참여 경험", "정기적 활용", "다수 사업 전략적 활용"] },
+
+    // ── ② 내부직원 역량 (7문항) ──
+    { cat: 1, q: "수출 전담 조직(팀/부서) 구성 및 업무 분장의 체계성은?", opt: ["전담조직 없음", "겸직 인력 1~2명", "전담팀 구성(3명 이상)", "전문 수출조직 운영 및 분업화"] },
+    { cat: 1, q: "수출 담당 인력의 무역실무(통관·계약·결제 등) 경험 수준은?", opt: ["경험 없음", "기초 수준", "실무 경험 보유", "글로벌 비즈니스 전문가 수준"] },
+    { cat: 1, q: "수출 담당 인력의 외국어(영어 및 타겟시장 언어) 커뮤니케이션 역량은?", opt: ["외국어 소통 불가", "기본 이메일 가능", "비즈니스 협상 가능", "네이티브급 다국어 역량"] },
+    { cat: 1, q: "연구개발(R&D) 인력의 해외 시장 트렌드 대응 및 제품개발 역량은?", opt: ["R&D 인력 부족", "국내 시장 중심 개발", "해외 트렌드 반영 개발", "글로벌 R&D 역량 확보"] },
+    { cat: 1, q: "생산·품질 부서의 글로벌 품질기준(GMP, HACCP 등) 대응 역량은?", opt: ["대응 역량 없음", "기본 국내 기준 준수", "주요 글로벌 기준 충족", "국제 품질경영시스템 완비"] },
+    { cat: 1, q: "수출 실무 관련 교육·역량 개발 프로그램 운영 수준은?", opt: ["교육 미실시", "비정기 외부교육 참여", "정기 교육 프로그램 운영", "체계적 글로벌 역량개발 시스템"] },
+    { cat: 1, q: "현지 파견 가능 인력 또는 해외 출장 대응 역량은?", opt: ["출장 인력 없음", "비정기 출장 가능", "정기 해외출장 수행", "상시 파견 및 현지 상주 가능"] },
+
+    // ── ③ 제품 경쟁력 (7문항) ──
+    { cat: 2, q: "제품의 글로벌 품질 수준 및 국내외 품질인증 확보 현황은?", opt: ["미보유", "국내 기초인증만 보유", "주요 수출국 핵심인증 확보", "글로벌 전방위 인증 확보"] },
+    { cat: 2, q: "타겟 수출시장 소비자 트렌드에 부합하는 제품 디자인·패키징 경쟁력은?", opt: ["경쟁력 낮음", "국내 수준 유지", "일부 현지화 적용", "시장별 최적화 디자인 확보"] },
+    { cat: 2, q: "제품의 가격 경쟁력(원가구조, FOB 가격 등) 수준은?", opt: ["가격 경쟁력 약함", "평균 수준", "양호한 가격 경쟁력", "가격 리더십 확보"] },
+    { cat: 2, q: "해외시장별 제품 현지화(라벨링·성분·규격 등) 대응 역량은?", opt: ["대응 역량 없음", "기본 수준 대응", "주요국 현지화 완료", "다수 국가 맞춤 현지화 체계"] },
+    { cat: 2, q: "안정적 대량생산 및 해외 주문 대응을 위한 생산능력(Capa) 수준은?", opt: ["생산능력 부족", "소량 주문 대응 가능", "중규모 주문 대응", "대량 주문 안정적 대응"] },
+    { cat: 2, q: "제품의 품질관리 체계(QC/QA) 및 해외 클레임 대응 프로세스 수준은?", opt: ["체계 미흡", "기본 QC 운영", "체계적 QC/QA 운영", "글로벌 수준 품질경영 체계"] },
+    { cat: 2, q: "제품의 해외 시장에서의 브랜드 인지도 및 차별적 포지셔닝 수준은?", opt: ["인지도 없음", "일부 바이어만 인지", "목표시장 내 인지도 확보", "글로벌 브랜드 인지도 확보"] },
+
+    // ── ④ 기술 경쟁력 (6문항) ──
+    { cat: 3, q: "제품의 핵심 기술 차별성 또는 독자기술 보유 현황은?", opt: ["차별성 없음", "경미한 차별점 존재", "핵심 기술 차별화", "독보적 원천기술 보유"] },
+    { cat: 3, q: "특허·실용신안·디자인 등 지식재산권(IP) 국내외 출원·등록 현황은?", opt: ["미출원", "국내 출원만 완료", "주요국 출원 진행", "글로벌 IP 포트폴리오 전략 운영"] },
+    { cat: 3, q: "R&D 투자 비중(매출 대비) 및 연구개발 체계의 수준은?", opt: ["R&D 투자 없음", "매출 대비 1% 미만", "매출 대비 1~3%", "매출 대비 3% 이상 및 전담 연구소"] },
+    { cat: 3, q: "기술 트렌드(AI·IoT·친환경 등) 대응을 위한 신기술 도입 수준은?", opt: ["대응 없음", "기초 조사 수준", "일부 신기술 적용", "선도적 기술 혁신 추진"] },
+    { cat: 3, q: "해외 기술규격(CE, UL, KS 등)·기술장벽(TBT) 대응 역량은?", opt: ["대응 역량 없음", "기초 인지 수준", "주요 규격 충족", "글로벌 기술규격 전방위 대응"] },
+    { cat: 3, q: "산학연 협력, 기술이전, 공동연구 등 외부 기술협력 네트워크 수준은?", opt: ["협력 없음", "단발성 협력 경험", "정기적 산학연 협력", "글로벌 R&D 파트너십 구축"] },
+
+    // ── ⑤ 수출 인프라 (6문항) ──
+    { cat: 4, q: "수출 대상국별 필수 인증·인허가(CE, FDA, HALAL, EAC 등) 취득 현황은?", opt: ["미취득", "일부 국가 기초인증", "주요 국가 핵심인증 취득", "다수 국가 전방위 인증 확보"] },
+    { cat: 4, q: "국제 물류(포워딩·운송·통관) 파트너십 및 물류 관리 역량은?", opt: ["물류 경험 없음", "단순 건별 위탁", "안정적 물류 파트너 확보", "글로벌 물류 네트워크 구축"] },
+    { cat: 4, q: "FTA(자유무역협정) 원산지 관리 및 활용 역량은?", opt: ["FTA 이해 부족", "기초 이해 수준", "원산지증명서 발급 가능", "FTA 전략적 활용 및 원산지 관리체계"] },
+    { cat: 4, q: "수출 통관 및 무역서류(B/L, Invoice, P/L, C/O 등) 작성 역량은?", opt: ["작성 역량 없음", "대행사 의존", "자체 작성 가능", "전문 관세사와 협업체계 구축"] },
+    { cat: 4, q: "해외거래 결제(T/T, L/C, D/A 등) 운용 및 수출보험·환리스크 관리 수준은?", opt: ["경험 없음", "T/T 송금만 가능", "다양한 결제 및 수출보험 가입", "복합결제·무역금융·환헷지 체계 운용"] },
+    { cat: 4, q: "비관세장벽(위생검역·기술규제·라벨링 등) 모니터링 및 대응 역량은?", opt: ["대응 역량 없음", "기초 수준 인지", "주요 규제 대응 가능", "체계적 규제 모니터링 및 선제 대응"] },
+
+    // ── ⑥ 마케팅 역량 (6문항) ──
+    { cat: 5, q: "글로벌 홈페이지(영문/다국어) 및 디지털 마케팅 인프라 수준은?", opt: ["홈페이지 없음/국문만", "기본 영문 페이지 존재", "전문 글로벌 사이트 운영", "다국어 사이트 + SEO + SNS 통합 운영"] },
+    { cat: 5, q: "해외 B2B 플랫폼(Alibaba, Amazon Business, Tradekorea 등) 활용 수준은?", opt: ["미활용", "가입만 완료", "실제 거래 경험 있음", "다수 플랫폼 전략적 운영"] },
+    { cat: 5, q: "해외 전시회·박람회 참가 경험 및 바이어 발굴 활용 역량은?", opt: ["참가 경험 없음", "1~2회 참가", "정기적 참가 및 바이어 발굴", "글로벌 주요 전시회 전략적 참가"] },
+    { cat: 5, q: "SNS/디지털 채널(LinkedIn, Instagram, YouTube 등)을 통한 해외 홍보 수준은?", opt: ["미활용", "비정기 포스팅", "정기적 콘텐츠 운영", "전문 콘텐츠 전략 및 광고 집행"] },
+    { cat: 5, q: "영문 카탈로그, 제품 브로슈어, 회사소개서 등 마케팅 자료 구비 수준은?", opt: ["미구비", "기본 자료만 존재", "전문 디자인 자료 구비", "시장별 맞춤 마케팅 자료 완비"] },
+    { cat: 5, q: "해외 바이어 DB 구축 및 CRM(고객관계관리) 시스템 운영 수준은?", opt: ["DB 없음", "엑셀 수준 관리", "기본 CRM 도입", "전문 CRM 시스템 운영 및 자동화"] },
+
+    // ── ⑦ 해외시장개척 역량 (6문항) ──
+    { cat: 6, q: "해외 바이어/거래처 확보 현황 및 거래 다변화 수준은?", opt: ["거래처 없음", "1~2개 거래처", "3~5개국 다변화", "10개국 이상 안정적 거래"] },
+    { cat: 6, q: "해외 현지 에이전트/디스트리뷰터 발굴 및 관리 역량은?", opt: ["에이전트 없음", "1개 에이전트 보유", "다수 에이전트 관리", "체계적 채널 파트너 관리"] },
+    { cat: 6, q: "해외 바이어 상담(오퍼·가격협상·계약) 수행 역량은?", opt: ["상담 경험 없음", "기본 이메일 교신 가능", "오퍼 작성 및 협상 가능", "독립적 계약 체결 및 클로징 역량"] },
+    { cat: 6, q: "수출 매출 비중(전체 매출 대비) 및 수출 성장 추이는?", opt: ["수출 매출 없음", "10% 미만", "10~30%", "30% 이상 및 지속 성장"] },
+    { cat: 6, q: "KOTRA·무역협회·중진공 등 수출 유관기관과의 협력 네트워크 수준은?", opt: ["협력 경험 없음", "비정기 활용", "정기적 협력 관계", "전략적 파트너십 구축"] },
+    { cat: 6, q: "해외 경쟁사 동향 및 시장정보(Market Intelligence) 수집·분석 역량은?", opt: ["정보 수집 없음", "비정기 뉴스 확인", "정기 시장조사 수행", "전문 MI 시스템 운영"] }
+];
+
+// ═══════════ 수출 인프라 체크리스트 기본 데이터 ═══════════
+const DEFAULT_INFRA_ITEMS = [
+    { name: "영문 홈페이지", status: "", note: "" },
+    { name: "영문(현지어) 카탈로그", status: "", note: "" },
+    { name: "수출국 현지어 라벨", status: "", note: "" },
+    { name: "ISO22000 / FSSC22000", status: "", note: "" },
+    { name: "유기농인증", status: "", note: "" },
+    { name: "GMP", status: "", note: "" },
+    { name: "Vegan 인증", status: "", note: "" },
+    { name: "Gluten Free 인증", status: "", note: "" },
+    { name: "HALAL 인증", status: "", note: "" },
+    { name: "CE / FDA 인증", status: "", note: "" },
+    { name: "영문 가격표 (Price List)", status: "", note: "" },
+    { name: "무역서식 (P/L, C/I, B/L)", status: "", note: "" },
+    { name: "K-Food Trade 등록", status: "", note: "" },
+    { name: "아마존 등록", status: "", note: "" },
+    { name: "TradeKorea 등록", status: "", note: "" },
+    { name: "BuyKorea 등록", status: "", note: "" },
+    { name: "원산지인증수출자", status: "", note: "" },
+    { name: "한-EU 원산지증명서", status: "", note: "" },
+    { name: "B2B 링크드인 계정", status: "", note: "" },
+    { name: "소셜미디어 B2B (유튜브 등 운영)", status: "", note: "" },
+    { name: "구글 검색엔진최적화 (SEO)", status: "", note: "" }
+];
+
+let infraItems = [];
+
+function loadInfraItems() {
+    const saved = localStorage.getItem('esg_infra_items_v4');
+    if (saved) {
+        infraItems = JSON.parse(saved);
+    } else {
+        infraItems = JSON.parse(JSON.stringify(DEFAULT_INFRA_ITEMS));
+    }
+    renderInfraTable();
+}
+
+function saveInfraItems() {
+    localStorage.setItem('esg_infra_items_v4', JSON.stringify(infraItems));
+}
+
+function renderInfraTable() {
+    const tbody = document.getElementById('infra-body');
+    if (!tbody) return;
+    tbody.innerHTML = infraItems.map((item, i) => `
+        <tr class="border-b hover:bg-gray-50 transition ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+            <td class="p-2 text-center text-xs text-gray-400 font-bold">${i + 1}</td>
+            <td class="p-2">
+                <input type="text" value="${item.name}" onchange="updateInfra(${i},'name',this.value)"
+                    class="w-full p-1.5 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-navy outline-none font-medium text-sm">
+            </td>
+            <td class="p-2 text-center">
+                <input type="radio" name="infra_${i}" value="없음" ${item.status === '없음' ? 'checked' : ''}
+                    onchange="updateInfra(${i},'status','없음')" class="w-4 h-4 accent-red-500 cursor-pointer">
+            </td>
+            <td class="p-2 text-center">
+                <input type="radio" name="infra_${i}" value="있음" ${item.status === '있음' ? 'checked' : ''}
+                    onchange="updateInfra(${i},'status','있음')" class="w-4 h-4 accent-green-600 cursor-pointer">
+            </td>
+            <td class="p-2 text-center">
+                <input type="radio" name="infra_${i}" value="진행중" ${item.status === '진행중' ? 'checked' : ''}
+                    onchange="updateInfra(${i},'status','진행중')" class="w-4 h-4 accent-yellow-500 cursor-pointer">
+            </td>
+            <td class="p-2">
+                <input type="text" value="${item.note}" onchange="updateInfra(${i},'note',this.value)" placeholder="메모"
+                    class="w-full p-1.5 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-navy outline-none text-xs text-gray-500">
+            </td>
+            <td class="p-2 text-center">
+                <button onclick="removeInfra(${i})" class="text-red-400 hover:text-red-600 text-lg font-bold leading-none" title="삭제">×</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateInfra(i, field, value) {
+    infraItems[i][field] = value;
+    saveInfraItems();
+}
+
+function addInfraItem() {
+    const name = prompt('추가할 항목명을 입력하세요:');
+    if (name && name.trim()) {
+        infraItems.push({ name: name.trim(), status: '', note: '' });
+        saveInfraItems();
+        renderInfraTable();
+    }
+}
+
+function removeInfra(i) {
+    if (confirm(`"${infraItems[i].name}" 항목을 삭제하시겠습니까?`)) {
+        infraItems.splice(i, 1);
+        saveInfraItems();
+        renderInfraTable();
+    }
+}
+
+// ═══════════ 상태 변수 ═══════════
+let currentQ = 0;
+let scores = new Array(44).fill(0);
+let questions = [];
+
+// localStorage에서 문항 로드 또는 기본값 사용
+function loadQuestions() {
+    const saved = localStorage.getItem('esg_export_questions_v4');
+    if (saved) {
+        questions = JSON.parse(saved);
+    } else {
+        questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+    }
+}
+loadQuestions();
+loadInfraItems();
+
+// ═══════════ 문항 관리 ═══════════
+function toggleAdmin() {
+    const panel = document.getElementById('admin-panel');
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'flex';
+        renderAdminList();
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function renderAdminList() {
+    const list = document.getElementById('admin-list');
+    list.innerHTML = questions.map((q, i) => `
+        <div class="p-4 border rounded-xl bg-gray-50">
+            <p class="font-bold text-sm mb-2" style="color:${CATEGORIES[q.cat].color}">Q${i + 1}. [${CATEGORIES[q.cat].name}]</p>
+            <input type="text" value="${q.q}" onchange="updateQ(${i},'q',this.value)" class="w-full p-2 border rounded mb-2 text-sm font-medium">
+            <div class="grid grid-cols-4 gap-2">
+                ${q.opt.map((o, oi) => `<input type="text" value="${o}" onchange="updateQ(${i},'opt',this.value,${oi})" class="text-xs p-1.5 border rounded">`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateQ(i, field, val, oi) {
+    if (field === 'q') questions[i].q = val;
+    if (field === 'opt') questions[i].opt[oi] = val;
+}
+
+function saveAdminQuestions() {
+    localStorage.setItem('esg_export_questions_v4', JSON.stringify(questions));
+    alert('✅ 44문항 설정이 저장되었습니다. (새로고침해도 유지됩니다)');
+    toggleAdmin();
+}
+
+function exportQuestions() {
+    const blob = new Blob([JSON.stringify(questions, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'export_diagnosis_questions.json'; a.click();
+}
+
+// ═══════════ 진단 시작 ═══════════
+function startDiag() {
+    const company = document.getElementById('company_name').value;
+    if (!company) { alert('기업명을 입력해주세요.'); return; }
+    if (!document.getElementById('diag_date').value) {
+        document.getElementById('diag_date').value = new Date().toISOString().split('T')[0];
+    }
+    currentQ = 0;
+    scores = new Array(questions.length).fill(0);
+    nextStep(2);
+}
+
+function nextStep(step) {
+    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+    const el = document.getElementById(`step-${step}`);
+    el.classList.add('active');
+    el.classList.remove('fade-in');
+    void el.offsetWidth;
+    el.classList.add('fade-in');
+
+    if (step === 2) showQuestion();
+    if (step === 3) generateDynamicComment();
+    if (step === 4) showResults();
+}
+
+// ═══════════ 문항 표시 ═══════════
+function showQuestion() {
+    const q = questions[currentQ];
+    document.getElementById('q-category').innerHTML = `<span style="color:${CATEGORIES[q.cat].color}">●</span> ${CATEGORIES[q.cat].name}`;
+    document.getElementById('q-text').innerText = q.q;
+    document.getElementById('q-progress').innerText = `${currentQ + 1} / ${questions.length}`;
+    document.getElementById('progress-fill').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    q.opt.forEach((t, i) => {
+        const btn = document.createElement('div');
+        btn.className = `option-btn p-4 border-2 rounded-2xl cursor-pointer bg-gray-50 hover:bg-white font-bold text-base flex items-center gap-3`;
+        const scoreLabel = ['1점', '2점', '3점', '4점'][i];
+        btn.innerHTML = `<span class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-black flex-shrink-0" style="border-color:${CATEGORIES[q.cat].color}; color:${CATEGORIES[q.cat].color}">${i + 1}</span><span>${t}</span><span class="ml-auto text-xs text-gray-400">(${scoreLabel})</span>`;
+
+        if (scores[currentQ] === i + 1) {
+            btn.classList.add('selected');
+            btn.style.borderColor = CATEGORIES[q.cat].color;
+        }
+
+        btn.onclick = () => {
+            document.querySelectorAll('#options-container .option-btn').forEach(d => { d.classList.remove('selected'); d.style.borderColor = ''; });
+            btn.classList.add('selected');
+            btn.style.borderColor = CATEGORIES[q.cat].color;
+            scores[currentQ] = i + 1;
+            enableNextBtn();
+        };
+        container.appendChild(btn);
+    });
+
+    document.getElementById('prev-q-btn').style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+    if (scores[currentQ] > 0) enableNextBtn(); else disableNextBtn();
+}
+
+function enableNextBtn() {
+    const btn = document.getElementById('next-q-btn');
+    btn.disabled = false;
+    btn.classList.replace('bg-gray-300', 'bg-navy');
+    btn.innerText = currentQ < questions.length - 1 ? '다음 문항 ▶' : '✅ 진단 완료 → 전문가 의견 작성';
+}
+
+function disableNextBtn() {
+    const btn = document.getElementById('next-q-btn');
+    btn.disabled = true;
+    btn.classList.replace('bg-navy', 'bg-gray-300');
+    btn.innerText = '답변을 선택해주세요';
+}
+
+function prevQuestion() {
+    if (currentQ > 0) { currentQ--; showQuestion(); }
+}
+
+document.getElementById('next-q-btn').onclick = () => {
+    if (currentQ < questions.length - 1) { currentQ++; showQuestion(); }
+    else { nextStep(3); }
+};
+
+// ═══════════ 점수 계산 ═══════════
+function calculateScore() {
+    let weightedTotal = 0;
+    let weightSum = 0;
+    CATEGORIES.forEach((cat, ci) => {
+        const catQuestions = questions.filter((q, qi) => q.cat === ci);
+        const catScores = questions.map((q, qi) => q.cat === ci ? scores[qi] : null).filter(v => v !== null);
+        if (catScores.length > 0) {
+            const catAvg = catScores.reduce((a, b) => a + b, 0) / (catScores.length * 4) * 100;
+            weightedTotal += catAvg * cat.weight;
+            weightSum += cat.weight;
+        }
+    });
+    return weightSum > 0 ? Math.round(weightedTotal / weightSum) : 0;
+}
+
+function getCategoryScore(catIndex) {
+    const catScores = questions.map((q, qi) => q.cat === catIndex ? scores[qi] : null).filter(v => v !== null);
+    if (catScores.length === 0) return 0;
+    return Math.round(catScores.reduce((a, b) => a + b, 0) / (catScores.length * 4) * 100);
+}
+
+function getGrade(score) {
+    if (score >= 90) return { grade: 'S', label: 'S등급 (글로벌 수출 선도기업)', cls: 'grade-S' };
+    if (score >= 80) return { grade: 'A', label: 'A등급 (수출 우수기업)', cls: 'grade-A' };
+    if (score >= 65) return { grade: 'B', label: 'B등급 (수출 성장기업)', cls: 'grade-B' };
+    if (score >= 50) return { grade: 'C', label: 'C등급 (수출 준비기업)', cls: 'grade-C' };
+    return { grade: 'D', label: 'D등급 (수출 역량 강화 필요)', cls: 'grade-D' };
+}
+
+// ═══════════ 동적 컨설턴트 의견 생성 ═══════════
+function generateDynamicComment() {
+    const score = calculateScore();
+    const gradeInfo = getGrade(score);
+    const companyName = document.getElementById('company_name').value;
+
+    const catScores = CATEGORIES.map((c, i) => ({ name: c.name, score: getCategoryScore(i) }));
+    catScores.sort((a, b) => a.score - b.score);
+
+    const weakest = catScores.slice(0, 2);
+    const strongest = catScores.slice(-2).reverse();
+
+    let opinion = `[수출전문가 종합 지도 의견]\n\n`;
+    opinion += `■ 진단 대상: ${companyName}\n`;
+    opinion += `■ 종합 점수: ${score}점 (${gradeInfo.label})\n\n`;
+
+    opinion += `1. 종합 평가\n`;
+    opinion += `  귀사의 수출 역량 종합 진단 결과, ${score}점으로 ${gradeInfo.label}에 해당합니다. `;
+
+    if (score >= 80) {
+        opinion += `전반적으로 수출 역량이 우수한 수준이며, 일부 영역의 보완을 통해 글로벌 시장에서의 경쟁력을 더욱 강화할 수 있을 것으로 판단됩니다.\n\n`;
+    } else if (score >= 65) {
+        opinion += `수출 기반은 갖추어져 있으나, 주요 취약 영역에 대한 전략적 보강이 필요한 단계입니다.\n\n`;
+    } else if (score >= 50) {
+        opinion += `수출 준비 단계로, 핵심 역량 구축을 위한 체계적인 준비가 요구됩니다.\n\n`;
+    } else {
+        opinion += `수출 역량 전반에 걸쳐 기초부터 체계적인 역량 강화가 시급한 상황입니다.\n\n`;
+    }
+
+    opinion += `2. 강점 영역\n`;
+    strongest.forEach(s => {
+        opinion += `  - ${s.name}: ${s.score}점\n`;
+    });
+
+    opinion += `\n3. 취약 영역 (우선 개선 필요)\n`;
+    weakest.forEach(w => {
+        opinion += `  - ${w.name}: ${w.score}점\n`;
+    });
+
+    opinion += `\n4. 핵심 권고사항\n`;
+    weakest.forEach((w, i) => {
+        opinion += `  ${i + 1}) ${w.name} 강화: `;
+        if (w.name.includes('경영진')) opinion += `CEO의 수출 의지 강화 및 중장기 수출 로드맵 수립, 수출 전담 예산 확보를 최우선 과제로 권고합니다.\n`;
+        else if (w.name.includes('내부직원')) opinion += `수출 전담인력 확충, 무역실무 역량 교육 및 외국어 커뮤니케이션 역량 강화 프로그램 도입을 권고합니다.\n`;
+        else if (w.name.includes('제품')) opinion += `글로벌 품질인증 확보, 현지화 전략 수립 및 생산 Capa 확대, 브랜드 포지셔닝 강화를 권고합니다.\n`;
+        else if (w.name.includes('기술')) opinion += `핵심기술 차별화, IP(지식재산권) 해외 출원 확대, R&D 투자 확충 및 기술규격 대응 역량을 강화할 것을 권고합니다.\n`;
+        else if (w.name.includes('인프라')) opinion += `수출대상국 필수 인증 취득 로드맵 수립, FTA 활용 전략 구체화 및 물류·결제 역량 고도화를 권고합니다.\n`;
+        else if (w.name.includes('마케팅')) opinion += `디지털 마케팅 채널(LinkedIn, B2B 플랫폼) 활용 강화, 영문 마케팅 자료 고도화 및 CRM 시스템 도입을 권고합니다.\n`;
+        else if (w.name.includes('시장개척')) opinion += `해외 바이어 다변화, 에이전트 네트워크 확대 및 시장정보(MI) 수집 체계를 구축할 것을 권고합니다.\n`;
+        else opinion += `해당 영역의 기초 역량부터 단계적으로 구축할 것을 권고합니다.\n`;
+    });
+
+    opinion += `\n5. 종합 의견\n`;
+    opinion += `  귀사의 지속적인 수출 성장을 위해, 상기 취약 영역을 중심으로 한 단기(6개월) 및 중기(1~2년) 실행 계획을 수립하고, 정부 수출지원사업을 적극 활용할 것을 권고드립니다.\n\n`;
+    opinion += `[본 보고서는 이에스지수출경영연구원(주)의 수출전문가 진단 알고리즘에 의해 작성되었습니다.]`;
+
+    document.getElementById('consultant_opinion').value = opinion;
+}
+
+// ═══════════ 결과 표시 ═══════════
+function showResults() {
+    const score = calculateScore();
+    const gradeInfo = getGrade(score);
+
+    document.getElementById('final-score-display').innerText = score;
+    document.getElementById('final-grade-display').innerHTML = `<span class="${gradeInfo.cls}">${gradeInfo.label}</span>`;
+    document.getElementById('result-company-name').innerText = document.getElementById('company_name').value;
+
+    // 영역별 바 차트
+    const barsHtml = CATEGORIES.map((cat, i) => {
+        const catScore = getCategoryScore(i);
+        const catGrade = getGrade(catScore);
+        return `<div class="flex items-center gap-3">
+            <span class="w-44 text-sm font-bold text-gray-600 flex-shrink-0">${cat.name}</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-6 relative">
+                <div class="h-6 rounded-full flex items-center justify-end pr-2" style="width:${catScore}%; background-color:${cat.color}; min-width:30px;">
+                    <span class="text-white text-xs font-bold">${catScore}점</span>
+                </div>
+            </div>
+            <span class="text-xs font-bold w-8 ${catGrade.cls}">${catGrade.grade}</span>
+        </div>`;
+    }).join('');
+    document.getElementById('section-bars').innerHTML = barsHtml;
+
+    // 레이더 차트
+    drawRadarChart();
+
+    // 인쇄 준비
+    preparePrint(score, gradeInfo);
+}
+
+function drawRadarChart() {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    if (window.myRadar) window.myRadar.destroy();
+    window.myRadar = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: CATEGORIES.map(c => c.name.replace('(', '\n(').substring(0, 12)),
+            datasets: [{
+                label: '역량 점수',
+                data: CATEGORIES.map((c, i) => getCategoryScore(i)),
+                backgroundColor: 'rgba(0, 35, 74, 0.15)',
+                borderColor: '#00234a',
+                borderWidth: 2,
+                pointBackgroundColor: '#00234a',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { stepSize: 25, font: { size: 10 } },
+                    pointLabels: { font: { size: 10, weight: 'bold' } }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// ═══════════ 인쇄 준비 ═══════════
+function preparePrint(score, gradeInfo) {
+    const setAll = (cls, val) => document.querySelectorAll(cls).forEach(e => e.innerText = val);
+    setAll('.print-company', document.getElementById('company_name').value);
+    setAll('.print-industry', document.getElementById('company_industry').value || '-');
+    setAll('.print-product', document.getElementById('company_product').value || '-');
+    setAll('.print-revenue', document.getElementById('company_revenue').value || '-');
+    setAll('.print-export-exp', document.getElementById('company_export_exp').value || '-');
+    setAll('.print-overseas', document.getElementById('company_overseas').value || '-');
+    setAll('.print-manager', document.getElementById('manager_name').value || '-');
+    setAll('.print-pos', document.getElementById('manager_pos').value || '-');
+    setAll('.print-date', document.getElementById('diag_date').value || '-');
+    setAll('.print-hr-total', (document.getElementById('hr_total').value || '-') + '명');
+    setAll('.print-hr-export', (document.getElementById('hr_export').value || '-') + '명');
+    setAll('.print-hr-rd', (document.getElementById('hr_rd').value || '-') + '명');
+    setAll('.print-hr-sales', (document.getElementById('hr_sales').value || '-') + '명');
+    setAll('.print-hr-marketing', (document.getElementById('hr_marketing').value || '-') + '명');
+    setAll('.print-hr-production', (document.getElementById('hr_production').value || '-') + '명');
+    setAll('.print-hr-purchase', (document.getElementById('hr_purchase').value || '-') + '명');
+
+    document.getElementById('report-score').innerText = score;
+    document.getElementById('report-grade').innerHTML = `<span class="${gradeInfo.cls}">${gradeInfo.label}</span>`;
+    document.getElementById('print-opinion').innerText = document.getElementById('consultant_opinion').value;
+
+    // 영역별 요약
+    let summaryHtml = CATEGORIES.map((cat, i) => {
+        const catScore = getCategoryScore(i);
+        const g = getGrade(catScore);
+        return `<div class="flex justify-between items-center p-3 border rounded-lg">
+            <span class="font-bold text-sm">${cat.name}</span>
+            <span class="font-black text-sm ${g.cls}">${catScore}점 (${g.grade}등급) — 가중치 ${cat.weight}%</span>
+        </div>`;
+    }).join('');
+    document.getElementById('print-section-summary').innerHTML = summaryHtml;
+
+    // 상세 내역
+    let detailHtml = '';
+    CATEGORIES.forEach((cat, ci) => {
+        detailHtml += `<div class="mb-4"><h4 class="text-base font-black mb-2 p-2 rounded" style="background:${cat.color}10; color:${cat.color}; border-left: 4px solid ${cat.color};">${cat.name} (가중치 ${cat.weight}%) — ${getCategoryScore(ci)}점</h4>`;
+        questions.forEach((q, qi) => {
+            if (q.cat === ci) {
+                const s = scores[qi] || 0;
+                const label = s > 0 ? q.opt[s - 1] : '미응답';
+                detailHtml += `<div class="flex justify-between py-1.5 border-b border-gray-100 text-xs"><span class="text-gray-700 flex-1">${q.q}</span><span class="font-bold ml-2 flex-shrink-0 ${s >= 3 ? 'text-blue-600' : s >= 2 ? 'text-gray-600' : 'text-red-500'}">${s}점 (${label})</span></div>`;
+            }
+        });
+        detailHtml += `</div>`;
+    });
+    document.getElementById('print-details').innerHTML = detailHtml;
+
+    // 수출 인프라 체크리스트 렌더링
+    const statusLabel = { '있음': '✅ 있음', '없음': '❌ 없음', '진행중': '🔄 진행중', '': '—' };
+    const statusColor = { '있음': 'color:#059669;font-weight:700', '없음': 'color:#dc2626;font-weight:700', '진행중': 'color:#d97706;font-weight:700', '': 'color:#9ca3af' };
+    const hasCount = infraItems.filter(it => it.status === '있음').length;
+    const noCount = infraItems.filter(it => it.status === '없음').length;
+    const progressCount = infraItems.filter(it => it.status === '진행중').length;
+    const emptyCount = infraItems.filter(it => !it.status).length;
+    let infraHtml = `<div class="mb-4 p-3 rounded-lg" style="background:#f0f7ff; border:1px solid #bfdbfe;">
+        <span class="font-bold text-sm">총 ${infraItems.length}개 항목 &nbsp;|&nbsp; ✅ 있음 ${hasCount} &nbsp;|&nbsp; ❌ 없음 ${noCount} &nbsp;|&nbsp; 🔄 진행중 ${progressCount}${emptyCount > 0 ? ` &nbsp;|&nbsp; 미입력 ${emptyCount}` : ''}</span>
+    </div>`;
+    infraHtml += `<table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead><tr style="background:#00234a; color:white;">
+            <th style="padding:8px; text-align:center; width:40px;">No.</th>
+            <th style="padding:8px; text-align:left;">구분</th>
+            <th style="padding:8px; text-align:center; width:80px;">상태</th>
+            <th style="padding:8px; text-align:left;">비고</th>
+        </tr></thead><tbody>`;
+    infraItems.forEach((item, idx) => {
+        const bg = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+        infraHtml += `<tr style="background:${bg}; border-bottom:1px solid #e5e7eb;">
+            <td style="padding:6px 8px; text-align:center;">${idx + 1}</td>
+            <td style="padding:6px 8px;">${item.name}</td>
+            <td style="padding:6px 8px; text-align:center; ${statusColor[item.status] || ''}">${statusLabel[item.status] || '—'}</td>
+            <td style="padding:6px 8px; color:#6b7280;">${item.note || ''}</td>
+        </tr>`;
+    });
+    infraHtml += `</tbody></table>`;
+    document.getElementById('print-infra-checklist').innerHTML = infraHtml;
+}
+
+// ═══════════ 데이터 저장/초기화 ═══════════
+function downloadJSON() {
+    const data = {
+        version: "v4.0",
+        date: document.getElementById('diag_date').value,
+        company: {
+            name: document.getElementById('company_name').value,
+            industry: document.getElementById('company_industry').value,
+            product: document.getElementById('company_product').value,
+            revenue: document.getElementById('company_revenue').value,
+            exportExperience: document.getElementById('company_export_exp').value,
+            overseas: document.getElementById('company_overseas').value,
+            hr: {
+                total: document.getElementById('hr_total').value,
+                export: document.getElementById('hr_export').value,
+                rd: document.getElementById('hr_rd').value,
+                sales: document.getElementById('hr_sales').value,
+                marketing: document.getElementById('hr_marketing').value,
+                production: document.getElementById('hr_production').value,
+                purchase: document.getElementById('hr_purchase').value
+            }
+        },
+        manager: { name: document.getElementById('manager_name').value, position: document.getElementById('manager_pos').value },
+        totalScore: calculateScore(),
+        grade: getGrade(calculateScore()).label,
+        categoryScores: CATEGORIES.map((c, i) => ({ name: c.name, score: getCategoryScore(i), grade: getGrade(getCategoryScore(i)).grade })),
+        responses: questions.map((q, i) => ({ category: CATEGORIES[q.cat].name, question: q.q, score: scores[i], answer: scores[i] > 0 ? q.opt[scores[i] - 1] : '미응답' })),
+        consultantOpinion: document.getElementById('consultant_opinion')?.value || '',
+        infraChecklist: infraItems.map(it => ({ name: it.name, status: it.status || '미입력', note: it.note || '' }))
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `수출역량진단_${data.company.name}_${data.date}.json`; a.click();
+}
+
+function resetAll() {
+    if (confirm('모든 입력을 초기화하시겠습니까?\n(수출 인프라 체크리스트도 기본값으로 복원됩니다)')) {
+        currentQ = 0;
+        scores = new Array(44).fill(0);
+        document.querySelectorAll('input, textarea, select').forEach(el => { if (el.type === 'number') el.value = ''; else if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
+        // 인프라 체크리스트 초기화
+        infraItems = JSON.parse(JSON.stringify(DEFAULT_INFRA_ITEMS));
+        saveInfraItems();
+        renderInfraTable();
+        // localStorage 진단 데이터 초기화
+        localStorage.removeItem('esg_diag_scores_v4');
+        nextStep(1);
+    }
+}
+
+// ═══════════ Step 3 → Step 4 ═══════════
+function finishDiag() {
+    nextStep(4);
+}
+
+// ═══════════ Google Sheets 제출 ═══════════
+// ⚠️ 아래 URL을 실제 Google Apps Script 웹앱 URL로 교체하세요
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4EuEe-I9BJOjJwut0BiCgIv3eWVeGnx66ahBcEP6gOVXAOXSBDhJFjg4CMiMC1EYFTw/exec';
+
+function submitToConsultant() {
+    const companyName = document.getElementById('company_name').value;
+    if (!companyName) { alert('기업명이 입력되지 않았습니다.'); return; }
+
+    const btn = document.getElementById('btn-submit');
+    const statusEl = document.getElementById('submit-status');
+
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_GOOGLE')) {
+        alert('⚠️ Google Apps Script URL이 설정되지 않았습니다.\n관리자에게 문의하세요.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = '⏳ 전송 중...';
+    btn.classList.remove('animate-pulse');
+    statusEl.classList.add('hidden');
+
+    const totalScore = calculateScore();
+    const gradeInfo = getGrade(totalScore);
+
+    // 전송 데이터 구성
+    const payload = {
+        timestamp: new Date().toISOString(),
+        date: document.getElementById('diag_date').value,
+        companyName: companyName,
+        industry: document.getElementById('company_industry').value || '',
+        product: document.getElementById('company_product').value || '',
+        revenue: document.getElementById('company_revenue').value || '',
+        exportExp: document.getElementById('company_export_exp').value || '',
+        overseas: document.getElementById('company_overseas').value || '',
+        hrTotal: document.getElementById('hr_total').value || '',
+        hrExport: document.getElementById('hr_export').value || '',
+        hrRd: document.getElementById('hr_rd').value || '',
+        hrSales: document.getElementById('hr_sales').value || '',
+        hrMarketing: document.getElementById('hr_marketing').value || '',
+        hrProduction: document.getElementById('hr_production').value || '',
+        hrPurchase: document.getElementById('hr_purchase').value || '',
+        managerName: document.getElementById('manager_name').value || '',
+        managerPos: document.getElementById('manager_pos').value || '',
+        totalScore: totalScore,
+        grade: gradeInfo.grade,
+        gradeLabel: gradeInfo.label,
+        cat0: getCategoryScore(0), cat1: getCategoryScore(1), cat2: getCategoryScore(2),
+        cat3: getCategoryScore(3), cat4: getCategoryScore(4), cat5: getCategoryScore(5), cat6: getCategoryScore(6),
+        catScores: CATEGORIES.map((c, i) => `${c.name}:${getCategoryScore(i)}`).join(' | '),
+        infraSummary: `있음:${infraItems.filter(x=>x.status==='있음').length} 없음:${infraItems.filter(x=>x.status==='없음').length} 진행중:${infraItems.filter(x=>x.status==='진행중').length}`,
+        consultantOpinion: document.getElementById('consultant_opinion')?.value || '',
+        // 전체 상세 데이터 (JSON 문자열)
+        fullData: JSON.stringify({
+            categoryScores: CATEGORIES.map((c, i) => ({ name: c.name, score: getCategoryScore(i), grade: getGrade(getCategoryScore(i)).grade })),
+            responses: questions.map((q, i) => ({ cat: CATEGORIES[q.cat].name, q: q.q, score: scores[i], answer: scores[i] > 0 ? q.opt[scores[i]-1] : '미응답' })),
+            infraChecklist: infraItems
+        })
+    };
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        btn.innerText = '✅ 제출 완료!';
+        btn.classList.add('bg-green-500');
+        btn.classList.remove('from-orange-500', 'to-red-500');
+        statusEl.innerText = '✅ 진단 결과가 ESG수출경영연구원에 성공적으로 전송되었습니다.';
+        statusEl.classList.remove('hidden', 'text-red-500');
+        statusEl.classList.add('text-green-600');
+        setTimeout(() => { btn.disabled = false; btn.innerText = '📤 재전송'; }, 5000);
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerText = '📤 컨설턴트에게 제출';
+        btn.classList.add('animate-pulse');
+        statusEl.innerText = '❌ 전송 실패. 인터넷 연결을 확인 후 다시 시도해 주세요.';
+        statusEl.classList.remove('hidden', 'text-green-600');
+        statusEl.classList.add('text-red-500');
+    });
+}
+
+// 초기 날짜 세팅
+document.getElementById('diag_date').value = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>
