@@ -6,6 +6,7 @@
     <title>ESG EXPORT - 수출 역량진단 시스템 v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f1f5f9; }
@@ -26,6 +27,7 @@
             .print-page:last-child { page-break-after: avoid; }
         }
         .print-only { display: none; }
+        body.client-mode .consultant-only { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -40,10 +42,12 @@
             <span class="text-[9px] text-navy font-bold uppercase tracking-wider">ESG Export Consulting, Inc.</span>
         </div>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 consultant-only">
+        <button onclick="openShareModal()" class="text-xs bg-navy text-white px-3 py-1.5 rounded-lg hover:bg-black font-bold">🔗 진단 링크 생성</button>
         <button onclick="toggleAdmin()" class="text-xs bg-gray-100 px-3 py-1.5 rounded-lg border hover:bg-gray-200 font-medium">⚙ 문항 관리</button>
         <button onclick="resetAll()" class="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-100 font-medium">↺ 초기화</button>
     </div>
+    <div class="hidden client-badge text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200 font-bold">고객 자가진단</div>
 </header>
 
 <!-- ═══════════ STEP 1: 기업 기본정보 ═══════════ -->
@@ -51,8 +55,14 @@
 
     <div id="step-1" class="step-content active space-y-8 fade-in">
         <div class="text-center space-y-2">
-            <h2 class="text-4xl font-black text-navy">수출기업 역량진단 보고서</h2>
+            <h2 class="text-4xl font-black text-navy" id="main-title">수출기업 역량진단 보고서</h2>
             <p class="text-gray-400 font-medium italic text-sm">Your Global Business Partner, ESG EXPORT CONSULTING</p>
+        </div>
+
+        <!-- 고객 자가진단 안내 (client 모드 전용) -->
+        <div id="client-intro" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
+            <p class="text-navy font-bold text-base">📩 ESG수출경영연구원에서 보내드린 <span class="font-black">수출역량 자가진단</span>입니다.</p>
+            <p class="text-sm text-gray-600 mt-2">아래 기업 정보와 연락처를 입력하신 뒤 진단 문항에 응답해 주세요. 응답 결과는 담당 컨설턴트에게 자동으로 전달되며, 맞춤 컨설팅에 활용됩니다.</p>
         </div>
 
         <!-- 기본정보 -->
@@ -114,7 +124,7 @@
         <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-red-600">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-black text-navy flex items-center gap-2">📋 수출 인프라 현황 체크리스트</h3>
-                <button onclick="addInfraItem()" class="text-xs bg-navy text-white px-4 py-2 rounded-lg font-bold hover:bg-black transition">+ 항목 추가</button>
+                <button onclick="addInfraItem()" class="consultant-only text-xs bg-navy text-white px-4 py-2 rounded-lg font-bold hover:bg-black transition">+ 항목 추가</button>
             </div>
             <p class="text-xs text-gray-400 mb-4">※ 기업별 상황에 맞게 항목을 자유롭게 추가/삭제/수정할 수 있습니다. 항목명을 클릭하면 수정 가능합니다.</p>
             <div class="overflow-x-auto">
@@ -135,13 +145,15 @@
             </div>
         </div>
 
-        <!-- 진단 담당자 정보 -->
+        <!-- 진단 담당자 / 응답자 정보 (고객DB) -->
         <div class="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-emerald-600">
-            <h3 class="text-lg font-black text-navy mb-6 flex items-center gap-2">🖊 진단 담당자 정보</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">진단 담당자</label><input type="text" id="manager_name" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="성함"></div>
+            <h3 class="text-lg font-black text-navy mb-6 flex items-center gap-2" id="manager-section-title">🖊 진단 담당자 정보</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase" id="lbl-manager-name">진단 담당자</label><input type="text" id="manager_name" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="성함"></div>
                 <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">담당자 직책</label><input type="text" id="manager_pos" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="대표이사 / 수출팀장"></div>
-                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">진단 일자</label><input type="date" id="diag_date" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase" id="lbl-manager-email">이메일 <span class="contact-req hidden text-red-500">*</span></label><input type="email" id="manager_email" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="example@company.com"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase" id="lbl-manager-phone">연락처(휴대폰) <span class="contact-req hidden text-red-500">*</span></label><input type="tel" id="manager_phone" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="010-0000-0000"></div>
+                <div class="space-y-1 md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">진단 일자</label><input type="date" id="diag_date" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none"></div>
             </div>
         </div>
 
@@ -203,8 +215,8 @@
 
             <div class="grid grid-cols-3 gap-3 mt-8">
                 <button onclick="window.print()" class="py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-lg">📄 PDF 출력</button>
-                <button onclick="downloadJSON()" class="py-4 bg-emerald-600 text-white rounded-2xl font-bold text-lg hover:bg-emerald-700 shadow-lg">💾 데이터 저장</button>
-                <button onclick="submitToConsultant()" id="btn-submit" class="py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl font-bold text-lg hover:from-orange-600 hover:to-red-600 shadow-lg animate-pulse">📤 컨설턴트에게 제출</button>
+                <button onclick="downloadJSON()" class="consultant-only py-4 bg-emerald-600 text-white rounded-2xl font-bold text-lg hover:bg-emerald-700 shadow-lg">💾 데이터 저장</button>
+                <button onclick="submitToConsultant()" id="btn-submit" class="consultant-only py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl font-bold text-lg hover:from-orange-600 hover:to-red-600 shadow-lg animate-pulse">📤 컨설턴트에게 제출</button>
             </div>
             <p id="submit-status" class="text-sm mt-3 font-bold hidden"></p>
         </div>
@@ -223,6 +235,27 @@
         </div>
         <div id="admin-list" class="space-y-3"></div>
         <button onclick="saveAdminQuestions()" class="w-full mt-6 py-4 bg-navy text-white font-bold rounded-xl hover:bg-black transition">💾 문항 설정 저장 (localStorage)</button>
+    </div>
+</div>
+
+<!-- ═══════════ 진단 링크 생성 모달 ═══════════ -->
+<div id="share-panel" class="fixed inset-0 bg-black bg-opacity-50 z-[100] no-print items-center justify-center p-6" style="display:none;">
+    <div class="bg-white w-full max-w-2xl rounded-3xl p-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-black text-navy">🔗 고객 진단 링크 생성</h3>
+            <button onclick="closeShareModal()" class="text-sm bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200">✕ 닫기</button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4 leading-relaxed">
+            현재 화면에 구성된 <b>진단 문항과 인프라 체크리스트 그대로</b> 담긴 링크가 생성됩니다.
+            이 링크를 제3자(고객)에게 보내면, 고객이 직접 진단을 작성하고 <b>결과가 Google Sheet 고객DB에 자동 저장</b>됩니다.
+            <br>※ 문항을 수정하셨다면 먼저 <b>[문항 관리 → 저장]</b> 또는 인프라 항목 편집 후 링크를 생성하세요.
+        </p>
+        <textarea id="share-link-box" readonly rows="4" class="w-full p-4 bg-gray-50 border rounded-xl text-xs text-gray-700 break-all outline-none mb-3"></textarea>
+        <div class="flex gap-3">
+            <button onclick="copyShareLink()" class="flex-1 py-3 bg-navy text-white rounded-xl font-bold hover:bg-black transition">📋 링크 복사</button>
+            <button onclick="testShareLink()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">🔎 미리보기(새 창)</button>
+        </div>
+        <p id="share-copy-status" class="text-sm mt-3 font-bold text-green-600 hidden">✅ 링크가 복사되었습니다.</p>
     </div>
 </div>
 
@@ -465,7 +498,7 @@ function renderInfraTable() {
                 <input type="text" value="${item.note}" onchange="updateInfra(${i},'note',this.value)" placeholder="메모"
                     class="w-full p-1.5 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-navy outline-none text-xs text-gray-500">
             </td>
-            <td class="p-2 text-center">
+            <td class="p-2 text-center consultant-only">
                 <button onclick="removeInfra(${i})" class="text-red-400 hover:text-red-600 text-lg font-bold leading-none" title="삭제">×</button>
             </td>
         </tr>
@@ -499,6 +532,24 @@ let currentQ = 0;
 let scores = new Array(44).fill(0);
 let questions = [];
 
+// ═══════════ 모드 감지 (컨설턴트 / 고객 응답) ═══════════
+// ?mode=client 로 접속하면 고객 자가진단 모드로 동작합니다.
+const IS_CLIENT_MODE = new URLSearchParams(location.search).get('mode') === 'client';
+let autoSubmitted = false;
+
+// 공유 링크(#cfg=...)에 담긴 문항/인프라 설정을 복원
+function loadSharedConfig() {
+    const m = (location.hash || '').match(/cfg=([^&]+)/);
+    if (!m || !window.LZString) return null;
+    try {
+        const json = LZString.decompressFromEncodedURIComponent(m[1]);
+        return json ? JSON.parse(json) : null;
+    } catch (e) {
+        console.warn('공유 설정 복원 실패', e);
+        return null;
+    }
+}
+
 // localStorage에서 문항 로드 또는 기본값 사용
 function loadQuestions() {
     const saved = localStorage.getItem('esg_export_questions_v4');
@@ -508,8 +559,71 @@ function loadQuestions() {
         questions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
     }
 }
-loadQuestions();
-loadInfraItems();
+
+// 초기 데이터 로드: 공유 설정이 있으면 우선 적용
+const SHARED_CFG = loadSharedConfig();
+if (SHARED_CFG && Array.isArray(SHARED_CFG.q) && SHARED_CFG.q.length) {
+    questions = JSON.parse(JSON.stringify(SHARED_CFG.q));
+} else {
+    loadQuestions();
+}
+if (SHARED_CFG && Array.isArray(SHARED_CFG.infra) && SHARED_CFG.infra.length) {
+    infraItems = JSON.parse(JSON.stringify(SHARED_CFG.infra));
+    renderInfraTable();
+} else {
+    loadInfraItems();
+}
+
+// ═══════════ 고객 응답 모드 UI 적용 ═══════════
+function applyClientMode() {
+    if (!IS_CLIENT_MODE) return;
+    document.body.classList.add('client-mode');
+    const badge = document.querySelector('.client-badge');
+    if (badge) badge.classList.remove('hidden');
+    const intro = document.getElementById('client-intro');
+    if (intro) intro.classList.remove('hidden');
+    // 문구 고객 친화적으로 변경
+    const t = document.getElementById('main-title'); if (t) t.innerText = '수출역량 자가진단';
+    const mt = document.getElementById('manager-section-title'); if (mt) mt.innerText = '📇 응답자(고객) 정보 — 진단 결과 안내를 위해 정확히 입력해 주세요';
+    const ln = document.getElementById('lbl-manager-name'); if (ln) ln.innerHTML = '응답자 성함 <span class="text-red-500">*</span>';
+    // 연락처 필수 표시
+    document.querySelectorAll('.contact-req').forEach(el => el.classList.remove('hidden'));
+}
+applyClientMode();
+
+// ═══════════ 진단 링크 생성/공유 ═══════════
+function buildShareLink() {
+    const cfg = { v: 4, q: questions, infra: infraItems };
+    const packed = LZString.compressToEncodedURIComponent(JSON.stringify(cfg));
+    const base = location.origin + location.pathname;
+    return `${base}?mode=client#cfg=${packed}`;
+}
+
+function openShareModal() {
+    const link = buildShareLink();
+    document.getElementById('share-link-box').value = link;
+    document.getElementById('share-copy-status').classList.add('hidden');
+    document.getElementById('share-panel').style.display = 'flex';
+}
+
+function closeShareModal() {
+    document.getElementById('share-panel').style.display = 'none';
+}
+
+function copyShareLink() {
+    const box = document.getElementById('share-link-box');
+    box.select();
+    const done = () => document.getElementById('share-copy-status').classList.remove('hidden');
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(box.value).then(done).catch(() => { document.execCommand('copy'); done(); });
+    } else {
+        document.execCommand('copy'); done();
+    }
+}
+
+function testShareLink() {
+    window.open(document.getElementById('share-link-box').value, '_blank');
+}
 
 // ═══════════ 문항 관리 ═══════════
 function toggleAdmin() {
@@ -556,6 +670,13 @@ function exportQuestions() {
 function startDiag() {
     const company = document.getElementById('company_name').value;
     if (!company) { alert('기업명을 입력해주세요.'); return; }
+    if (IS_CLIENT_MODE) {
+        const name = document.getElementById('manager_name').value.trim();
+        const email = document.getElementById('manager_email').value.trim();
+        const phone = document.getElementById('manager_phone').value.trim();
+        if (!name) { alert('응답자 성함을 입력해주세요.'); return; }
+        if (!email && !phone) { alert('결과 안내를 위해 이메일 또는 연락처 중 하나는 반드시 입력해주세요.'); return; }
+    }
     if (!document.getElementById('diag_date').value) {
         document.getElementById('diag_date').value = new Date().toISOString().split('T')[0];
     }
@@ -616,7 +737,7 @@ function enableNextBtn() {
     const btn = document.getElementById('next-q-btn');
     btn.disabled = false;
     btn.classList.replace('bg-gray-300', 'bg-navy');
-    btn.innerText = currentQ < questions.length - 1 ? '다음 문항 ▶' : '✅ 진단 완료 → 전문가 의견 작성';
+    btn.innerText = currentQ < questions.length - 1 ? '다음 문항 ▶' : (IS_CLIENT_MODE ? '✅ 진단 완료 → 결과 제출' : '✅ 진단 완료 → 전문가 의견 작성');
 }
 
 function disableNextBtn() {
@@ -632,6 +753,7 @@ function prevQuestion() {
 
 document.getElementById('next-q-btn').onclick = () => {
     if (currentQ < questions.length - 1) { currentQ++; showQuestion(); }
+    else if (IS_CLIENT_MODE) { generateDynamicComment(); nextStep(4); }
     else { nextStep(3); }
 };
 
@@ -754,6 +876,12 @@ function showResults() {
 
     // 인쇄 준비
     preparePrint(score, gradeInfo);
+
+    // 고객 모드: 결과를 컨설턴트(Google Sheet)에 자동 제출
+    if (IS_CLIENT_MODE && !autoSubmitted) {
+        autoSubmitted = true;
+        submitToConsultant();
+    }
 }
 
 function drawRadarChart() {
@@ -890,7 +1018,8 @@ function downloadJSON() {
                 purchase: document.getElementById('hr_purchase').value
             }
         },
-        manager: { name: document.getElementById('manager_name').value, position: document.getElementById('manager_pos').value },
+        manager: { name: document.getElementById('manager_name').value, position: document.getElementById('manager_pos').value, email: document.getElementById('manager_email').value, phone: document.getElementById('manager_phone').value },
+        source: IS_CLIENT_MODE ? '고객 자가진단' : '컨설턴트 진단',
         totalScore: calculateScore(),
         grade: getGrade(calculateScore()).label,
         categoryScores: CATEGORIES.map((c, i) => ({ name: c.name, score: getCategoryScore(i), grade: getGrade(getCategoryScore(i)).grade })),
@@ -966,6 +1095,9 @@ function submitToConsultant() {
         hrPurchase: document.getElementById('hr_purchase').value || '',
         managerName: document.getElementById('manager_name').value || '',
         managerPos: document.getElementById('manager_pos').value || '',
+        managerEmail: document.getElementById('manager_email').value || '',
+        managerPhone: document.getElementById('manager_phone').value || '',
+        source: IS_CLIENT_MODE ? '고객 자가진단' : '컨설턴트 진단',
         totalScore: totalScore,
         grade: gradeInfo.grade,
         gradeLabel: gradeInfo.label,
