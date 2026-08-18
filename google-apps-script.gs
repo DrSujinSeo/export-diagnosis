@@ -59,7 +59,9 @@ var COLUMNS = [
   { key: 'infraSummary',     label: '인프라요약' },
   { key: 'consultantOpinion',label: '컨설턴트의견' },
   { key: 'fullData',         label: '전체데이터(JSON)' },
-  { key: 'govPrograms',      label: '추천정부지원사업' }
+  { key: 'govPrograms',      label: '추천정부지원사업' },
+  { key: 'hsCode',           label: 'HS코드' },
+  { key: 'productCategory',  label: '제품군' }
 ];
 
 /**

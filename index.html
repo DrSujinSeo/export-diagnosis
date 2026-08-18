@@ -72,6 +72,14 @@
                 <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">대상 기업명 *</label><input type="text" id="company_name" class="w-full p-3.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-200 outline-none" placeholder="예: 주식회사 에이블랩스"></div>
                 <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">업종 / 산업분야</label><input type="text" id="company_industry" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="예: 화장품 제조업"></div>
                 <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">주요 제품/서비스</label><input type="text" id="company_product" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="예: 기능성 스킨케어, 마스크팩"></div>
+                <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">HS코드 (모르면 비워두세요)</label><input type="text" id="company_hscode" onblur="autoDetectIndustry()" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none" placeholder="예: 3304 (앞 2~4자리)"></div>
+                <div class="space-y-1 md:col-span-2">
+                    <label class="text-xs font-bold text-gray-500 uppercase">제품군(업종) — 선택 시 인증 체크리스트가 자동 전환됩니다 ★</label>
+                    <select id="company_category" onchange="onCategoryChange()" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none font-bold text-navy">
+                        <option value="">— 제품군을 선택하거나 HS코드를 입력하세요 —</option>
+                    </select>
+                    <div id="industry-links" class="hidden mt-2 text-xs bg-blue-50 border border-blue-200 rounded-xl p-3 leading-relaxed"></div>
+                </div>
                 <div class="space-y-1"><label class="text-xs font-bold text-gray-500 uppercase">연간 매출액 (억원)</label>
                     <select id="company_revenue" class="w-full p-3.5 bg-gray-50 border rounded-xl outline-none">
                         <option value="">선택해주세요</option>
@@ -298,6 +306,7 @@
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">기업명</td><td class="p-3 print-company"></td></tr>
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">업종</td><td class="p-3 print-industry"></td></tr>
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">주요 제품</td><td class="p-3 print-product"></td></tr>
+            <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">제품군 / HS코드</td><td class="p-3"><span class="print-category"></span> <span class="print-hscode"></span></td></tr>
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">매출규모</td><td class="p-3 print-revenue"></td></tr>
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">수출경험</td><td class="p-3 print-export-exp"></td></tr>
             <tr class="border-b"><td class="p-3 bg-gray-50 font-bold">해외지사 여부</td><td class="p-3 print-overseas"></td></tr>
@@ -469,6 +478,129 @@ const DEFAULT_INFRA_ITEMS = [
     { name: "구글 검색엔진최적화 (SEO)", status: "", note: "" }
 ];
 
+// ═══════════ 업종(제품군)별 인증 프리셋 ═══════════
+// 모든 업종 공통 인프라 항목
+const COMMON_INFRA = [
+    '영문 홈페이지', '영문(현지어) 카탈로그', '수출국 현지어 라벨/포장',
+    '영문 가격표 (Price List)', '무역서식 (P/L, C/I, B/L)', '원산지증명서(C/O)·FTA 원산지인증수출자',
+    'TradeKorea 등록', 'BuyKorea 등록', 'B2B 링크드인 계정', '구글 검색엔진최적화 (SEO)'
+];
+
+// 업종별 정의: name, hs(챕터 2자리 목록), certs(해당 업종 필수 인증), links(참고 사이트)
+const INDUSTRY_PRESETS = {
+    cosmetic: {
+        name: '화장품·뷰티',
+        hs: ['33'],
+        certs: ['CPNP (EU 화장품 신고)', 'EU 책임자(RP) 지정', 'FDA MoCRA 등록 (미국)', 'NMPA 등록/비안 (중국)', 'CPSR (제품안전성보고서)', 'ISO 22716 (화장품 GMP)', 'Vegan 인증', 'Cruelty-Free (Leaping Bunny)', 'HALAL 인증', '아마존·큐텐 등 온라인몰 등록'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do'], ['화장품 수출정보(대한화장품협회)', 'https://www.kcia.or.kr']]
+    },
+    food: {
+        name: '식품·건강기능식품',
+        hs: ['02','03','04','07','08','09','10','11','12','15','16','17','18','19','20','21','22'],
+        certs: ['FDA 식품시설등록(FFR)·FSVP (미국)', 'FSSC22000 / ISO22000', 'HACCP', 'HALAL 인증', '검역증(식물·동물검역)', 'GACC 해외제조업체 등록 (중국)', '유기농 인증(USDA/EU Organic)', 'Non-GMO / Gluten-Free / Vegan', '현지 영양성분·라벨 규정 대응', 'K-Food Trade·온라인몰 등록'],
+        links: [['식품수출정보(aT 수출종합지원)', 'https://www.at.or.kr'], ['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do']]
+    },
+    electronics: {
+        name: '전자·전기·IT',
+        hs: ['85'],
+        certs: ['CE (EMC/LVD)', 'FCC (미국)', 'UL / ETL 인증', 'KC 인증', 'RoHS', 'REACH', 'PSE (일본)', 'CCC (중국)', 'WEEE (폐전자제품)', '아마존 등 온라인몰 등록'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do'], ['국가기술표준원 해외인증', 'https://www.kats.go.kr']]
+    },
+    machinery: {
+        name: '기계·장비',
+        hs: ['84'],
+        certs: ['CE (기계지침 MD)', 'UL / CSA (북미)', 'ATEX (방폭, 해당 시)', 'ISO 9001', 'RoHS / REACH (전장 포함 시)', '기술문서(TCF)·적합성선언(DoC)', 'EAC (러시아·CIS)'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do']]
+    },
+    chemical: {
+        name: '화학·소재·플라스틱',
+        hs: ['28','29','31','32','35','38','39'],
+        certs: ['REACH 등록 (EU)', 'K-REACH (국내)', 'TSCA (미국)', 'SDS/MSDS (GHS)', 'RoHS', 'ChemNetChina 등록', '위험물 운송(UN번호·포장)', '중국 위험화학품 등록'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do'], ['화학물질관리(화학물질정보처리시스템)', 'https://icis.me.go.kr']]
+    },
+    auto: {
+        name: '자동차부품',
+        hs: ['87'],
+        certs: ['IATF 16949 (자동차 품질)', 'E-Mark / ECE (유럽 부품)', 'CE / RoHS / REACH', '탄소발자국·EPD (환경성적)', 'PPAP (양산승인)', 'DUNS·공급사 등록'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do']]
+    },
+    medical: {
+        name: '의료기기',
+        hs: ['90'],
+        certs: ['CE MDR (EU 의료기기)', 'FDA 510(k)·시설등록 (미국)', 'ISO 13485', 'MFDS 허가 (국내)', 'NMPA (중국)', 'MDSAP', 'UDI (기기식별)'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do'], ['의료기기 수출정보(한국의료기기산업협회)', 'https://www.kmdia.or.kr']]
+    },
+    textile: {
+        name: '패션·섬유·잡화',
+        hs: ['42','50','51','52','53','54','55','56','57','58','59','60','61','62','63','64','65'],
+        certs: ['OEKO-TEX Standard 100', 'GOTS (유기농 섬유)', 'REACH (염료·가공제)', 'CPSIA (미국 아동제품)', 'Higg Index / BSCI (윤리)', '현지 섬유표시·케어라벨 규정'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do']]
+    },
+    living: {
+        name: '생활·주방·유아용품',
+        hs: ['44','69','70','73','76','82','94','95','96'],
+        certs: ['LFGB (독일 식품접촉)', 'FDA FCN (미국 식품접촉)', 'EU 식품접촉 1935/2004', 'CPSIA (미국 아동)', 'EN71 (완구 안전, 해당 시)', 'CE / California Prop.65'],
+        links: [['KOTRA 해외인증정보시스템', 'https://www.kotra.or.kr/subList/20000008178/policyInfo/certification/certificationList.do']]
+    }
+};
+
+// 카테고리 선택 드롭다운 채우기
+function populateCategorySelect() {
+    const sel = document.getElementById('company_category');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 제품군을 선택하거나 HS코드를 입력하세요 —</option>' +
+        Object.keys(INDUSTRY_PRESETS).map(k => `<option value="${k}">${INDUSTRY_PRESETS[k].name}</option>`).join('');
+    if (cur) sel.value = cur;
+}
+
+// HS코드(앞 2자리)로 업종 자동 판별
+function detectIndustryFromHS(hs) {
+    const ch = (hs || '').replace(/[^0-9]/g, '').slice(0, 2);
+    if (!ch) return '';
+    for (const k of Object.keys(INDUSTRY_PRESETS)) {
+        if (INDUSTRY_PRESETS[k].hs.includes(ch)) return k;
+    }
+    return '';
+}
+
+function autoDetectIndustry() {
+    const hs = document.getElementById('company_hscode').value;
+    const key = detectIndustryFromHS(hs);
+    if (key) {
+        document.getElementById('company_category').value = key;
+        applyIndustryPreset(key, true);
+    }
+}
+
+function onCategoryChange() {
+    const key = document.getElementById('company_category').value;
+    if (key) applyIndustryPreset(key, false);
+    else { document.getElementById('industry-links').classList.add('hidden'); }
+}
+
+// 선택 업종의 인증 체크리스트를 인프라 항목으로 적용
+function applyIndustryPreset(key, silent) {
+    const preset = INDUSTRY_PRESETS[key];
+    if (!preset) return;
+    const hasData = infraItems.some(it => it.status);
+    if (!silent && hasData && !confirm(`인프라 체크리스트를 "${preset.name}" 업종 인증 항목으로 교체할까요?\n(이미 체크한 내용은 초기화됩니다)`)) {
+        return;
+    }
+    const list = COMMON_INFRA.concat(preset.certs);
+    infraItems = list.map(name => ({ name, status: '', note: '' }));
+    saveInfraItems();
+    renderInfraTable();
+    // KOTRA 등 참고 링크 표시
+    const box = document.getElementById('industry-links');
+    if (box) {
+        box.innerHTML = `<b class="text-navy">✅ [${preset.name}] 인증 체크리스트가 적용되었습니다.</b><br>`
+            + `최신 국가별 규제는 아래에서 확인하세요:<br>`
+            + preset.links.map(l => `· <a href="${l[1]}" target="_blank" class="text-blue-700 underline font-bold">${l[0]}</a>`).join('<br>');
+        box.classList.remove('hidden');
+    }
+}
+
 let infraItems = [];
 
 function loadInfraItems() {
@@ -587,6 +719,25 @@ if (SHARED_CFG && Array.isArray(SHARED_CFG.infra) && SHARED_CFG.infra.length) {
     loadInfraItems();
 }
 
+// 제품군 드롭다운 구성 + 공유링크의 제품정보 복원
+populateCategorySelect();
+if (SHARED_CFG && SHARED_CFG.meta) {
+    const meta = SHARED_CFG.meta;
+    if (meta.product) document.getElementById('company_product').value = meta.product;
+    if (meta.hs) document.getElementById('company_hscode').value = meta.hs;
+    if (meta.category) {
+        const sel = document.getElementById('company_category');
+        sel.value = meta.category;
+        const preset = INDUSTRY_PRESETS[meta.category];
+        if (preset) {
+            const box = document.getElementById('industry-links');
+            box.innerHTML = `<b class="text-navy">✅ [${preset.name}] 업종 인증 체크리스트 적용됨</b><br>`
+                + preset.links.map(l => `· <a href="${l[1]}" target="_blank" class="text-blue-700 underline font-bold">${l[0]}</a>`).join('<br>');
+            box.classList.remove('hidden');
+        }
+    }
+}
+
 // ═══════════ 고객 응답 모드 UI 적용 ═══════════
 function applyClientMode() {
     if (!IS_CLIENT_MODE) return;
@@ -606,7 +757,11 @@ applyClientMode();
 
 // ═══════════ 진단 링크 생성/공유 ═══════════
 function buildShareLink() {
-    const cfg = { v: 4, q: questions, infra: infraItems };
+    const cfg = { v: 4, q: questions, infra: infraItems, meta: {
+        product: document.getElementById('company_product').value || '',
+        hs: document.getElementById('company_hscode').value || '',
+        category: document.getElementById('company_category').value || ''
+    } };
     const packed = LZString.compressToEncodedURIComponent(JSON.stringify(cfg));
     const base = location.origin + location.pathname;
     return `${base}?mode=client#cfg=${packed}`;
@@ -1028,6 +1183,8 @@ function preparePrint(score, gradeInfo) {
     setAll('.print-company', document.getElementById('company_name').value);
     setAll('.print-industry', document.getElementById('company_industry').value || '-');
     setAll('.print-product', document.getElementById('company_product').value || '-');
+    setAll('.print-category', (INDUSTRY_PRESETS[document.getElementById('company_category').value] || {}).name || '-');
+    setAll('.print-hscode', document.getElementById('company_hscode').value ? '(HS ' + document.getElementById('company_hscode').value + ')' : '');
     setAll('.print-revenue', document.getElementById('company_revenue').value || '-');
     setAll('.print-export-exp', document.getElementById('company_export_exp').value || '-');
     setAll('.print-overseas', document.getElementById('company_overseas').value || '-');
@@ -1123,6 +1280,8 @@ function downloadJSON() {
             name: document.getElementById('company_name').value,
             industry: document.getElementById('company_industry').value,
             product: document.getElementById('company_product').value,
+            hsCode: document.getElementById('company_hscode').value,
+            productCategory: (INDUSTRY_PRESETS[document.getElementById('company_category').value] || {}).name || '',
             revenue: document.getElementById('company_revenue').value,
             exportExperience: document.getElementById('company_export_exp').value,
             overseas: document.getElementById('company_overseas').value,
@@ -1160,6 +1319,7 @@ function resetAll() {
         infraItems = JSON.parse(JSON.stringify(DEFAULT_INFRA_ITEMS));
         saveInfraItems();
         renderInfraTable();
+        const box = document.getElementById('industry-links'); if (box) box.classList.add('hidden');
         // localStorage 진단 데이터 초기화
         localStorage.removeItem('esg_diag_scores_v4');
         nextStep(1);
@@ -1202,6 +1362,8 @@ function submitToConsultant() {
         companyName: companyName,
         industry: document.getElementById('company_industry').value || '',
         product: document.getElementById('company_product').value || '',
+        hsCode: document.getElementById('company_hscode').value || '',
+        productCategory: (INDUSTRY_PRESETS[document.getElementById('company_category').value] || {}).name || '',
         revenue: document.getElementById('company_revenue').value || '',
         exportExp: document.getElementById('company_export_exp').value || '',
         overseas: document.getElementById('company_overseas').value || '',
